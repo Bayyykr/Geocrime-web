@@ -8,8 +8,13 @@
 </div>
 
 <div>
-    <label class="form-label">Wilayah/Kecamatan</label>
-    <input class="form-input" name="wilayah" value="{{ $polsek?->wilayah }}" placeholder="Contoh: Kecamatan Lumajang">
+    <label class="form-label">Wilayah Master Lokasi</label>
+    <select class="form-select" name="lokasi_id">
+        <option value="">Pilih wilayah lokasi</option>
+        @foreach (($locations ?? collect()) as $location)
+            <option value="{{ $location->id }}" @selected((string) $polsek?->lokasi_id === (string) $location->id)>{{ $location->nama_lokasi }}</option>
+        @endforeach
+    </select>
 </div>
 
 <div>

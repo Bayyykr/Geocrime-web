@@ -13,6 +13,17 @@
             </div>
 
             <div>
+                <label class="form-label">Wilayah Master Lokasi</label>
+                <select class="form-select" name="lokasi_id">
+                    <option value="">Pilih wilayah lokasi</option>
+                    @foreach (($locations ?? collect()) as $location)
+                        <option value="{{ $location->id }}" @selected((string) old('lokasi_id', $item->lokasi_id) === (string) $location->id)>{{ $location->nama_lokasi }}</option>
+                    @endforeach
+                </select>
+                @error('lokasi_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
                 <label class="form-label">URL Live Streaming YouTube</label>
                 <input class="form-input" name="url_stream" value="{{ old('url_stream', $item->url_stream) }}" placeholder="https://www.youtube.com/watch?v=... atau https://www.youtube.com/live/...">
                 <p class="mt-2 text-sm text-gray-500">Masukkan URL livestream YouTube. Sistem akan otomatis menampilkan player live streaming.</p>

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Location;
 use App\Models\Polsek;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -166,91 +167,76 @@ class DatabaseSeeder extends Seeder
         $polseks = [
             [
                 "nama" => "Polsek Lumajang Kota",
-                "wilayah" => "Kecamatan Lumajang",
                 "alamat" => "Jl. Alun-Alun Barat, Lumajang",
                 "telepon" => "0334-881001",
             ],
             [
                 "nama" => "Polsek Sukodono",
-                "wilayah" => "Kecamatan Sukodono",
                 "alamat" => "Jl. Raya Sukodono, Lumajang",
                 "telepon" => "0334-881002",
             ],
             [
                 "nama" => "Polsek Sumbersuko",
-                "wilayah" => "Kecamatan Sumbersuko",
                 "alamat" => "Jl. Raya Sumbersuko, Lumajang",
                 "telepon" => "0334-881003",
             ],
             [
                 "nama" => "Polsek Tekung",
-                "wilayah" => "Kecamatan Tekung",
                 "alamat" => "Jl. Raya Tekung, Lumajang",
                 "telepon" => "0334-881004",
             ],
             [
                 "nama" => "Polsek Senduro",
-                "wilayah" => "Kecamatan Senduro",
                 "alamat" => "Jl. Raya Senduro, Lumajang",
                 "telepon" => "0334-881005",
             ],
             [
                 "nama" => "Polsek Pasirian",
-                "wilayah" => "Kecamatan Pasirian",
                 "alamat" => "Jl. Raya Pasirian, Lumajang",
                 "telepon" => "0334-881006",
             ],
             [
                 "nama" => "Polsek Candipuro",
-                "wilayah" => "Kecamatan Candipuro",
                 "alamat" => "Jl. Raya Candipuro, Lumajang",
                 "telepon" => "0334-881007",
             ],
             [
                 "nama" => "Polsek Klakah",
-                "wilayah" => "Kecamatan Klakah",
                 "alamat" => "Jl. Raya Klakah, Lumajang",
                 "telepon" => "0334-881008",
             ],
             [
                 "nama" => "Polsek Ranuyoso",
-                "wilayah" => "Kecamatan Ranuyoso",
                 "alamat" => "Jl. Raya Ranuyoso, Lumajang",
                 "telepon" => "0334-881009",
             ],
             [
                 "nama" => "Polsek Jatiroto",
-                "wilayah" => "Kecamatan Jatiroto",
                 "alamat" => "Jl. Raya Jatiroto, Lumajang",
                 "telepon" => "0334-881010",
             ],
             [
                 "nama" => "Polsek Randuagung",
-                "wilayah" => "Kecamatan Randuagung",
                 "alamat" => "Jl. Raya Randuagung, Lumajang",
                 "telepon" => "0334-881011",
             ],
             [
                 "nama" => "Polsek Yosowilangun",
-                "wilayah" => "Kecamatan Yosowilangun",
                 "alamat" => "Jl. Raya Yosowilangun, Lumajang",
                 "telepon" => "0334-881012",
             ],
             [
                 "nama" => "Polsek Rowokangkung",
-                "wilayah" => "Kecamatan Rowokangkung",
                 "alamat" => "Jl. Raya Rowokangkung, Lumajang",
                 "telepon" => "0334-881013",
             ],
             [
                 "nama" => "Polsek Tempursari",
-                "wilayah" => "Kecamatan Tempursari",
                 "alamat" => "Jl. Raya Tempursari, Lumajang",
                 "telepon" => "0334-881014",
             ],
             [
                 "nama" => "Polsek Pronojiwo",
-                "wilayah" => "Kecamatan Pronojiwo",
                 "alamat" => "Jl. Raya Pronojiwo, Lumajang",
                 "telepon" => "0334-881015",
             ],
@@ -303,6 +289,77 @@ class DatabaseSeeder extends Seeder
                 ["nama_kategori" => $category["nama_kategori"]],
                 $category,
             );
+        }
+
+        $locations = [
+            [
+                "nama_lokasi" => "Lumajang (Kota)",
+                "latitude" => -8.1331,
+                "longitude" => 113.2224,
+                "status_kerawanan" => "Rawan",
+            ],
+            [
+                "nama_lokasi" => "Sumbersuko",
+                "latitude" => -8.1636,
+                "longitude" => 113.2031,
+                "status_kerawanan" => "Rawan",
+            ],
+            [
+                "nama_lokasi" => "Kunir",
+                "latitude" => -8.2125,
+                "longitude" => 113.2662,
+                "status_kerawanan" => "Sangat Rawan",
+            ],
+            [
+                "nama_lokasi" => "Yosowilangun",
+                "latitude" => -8.2044,
+                "longitude" => 113.3194,
+                "status_kerawanan" => "Rawan",
+            ],
+            [
+                "nama_lokasi" => "Sukodono",
+                "latitude" => -8.1122,
+                "longitude" => 113.2318,
+                "status_kerawanan" => "Aman",
+            ],
+            [
+                "nama_lokasi" => "Pasirian",
+                "latitude" => -8.2157,
+                "longitude" => 113.1152,
+                "status_kerawanan" => "Rawan",
+            ],
+            [
+                "nama_lokasi" => "Candipuro",
+                "latitude" => -8.1885,
+                "longitude" => 113.0512,
+                "status_kerawanan" => "Aman",
+            ],
+        ];
+
+        foreach ($locations as $location) {
+            Location::updateOrCreate(
+                ["nama_lokasi" => $location["nama_lokasi"]],
+                $location,
+            );
+        }
+
+        $polsekLocationMap = [
+            "Polsek Lumajang Kota" => "Lumajang (Kota)",
+            "Polsek Sumbersuko" => "Sumbersuko",
+            "Polsek Sukodono" => "Sukodono",
+            "Polsek Pasirian" => "Pasirian",
+            "Polsek Candipuro" => "Candipuro",
+            "Polsek Yosowilangun" => "Yosowilangun",
+        ];
+
+        foreach ($polsekLocationMap as $polsekName => $locationName) {
+            $location = Location::where("nama_lokasi", $locationName)->first();
+
+            if ($location) {
+                Polsek::where("nama", $polsekName)->update([
+                    "lokasi_id" => $location->id,
+                ]);
+            }
         }
     }
 }

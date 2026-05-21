@@ -6,6 +6,7 @@
             <div>
                 <h2 class="text-xl font-bold text-gray-900">{{ $item->nama }}</h2>
                 <p class="mt-1 text-sm text-gray-500">{{ $item->url_stream ?: 'URL live streaming belum diisi.' }}</p>
+                <p class="mt-1 text-sm text-gray-500">Wilayah: {{ $item->lokasi?->nama_lokasi ?? '-' }}</p>
             </div>
             <a class="btn-secondary" href="{{ route('admin.cctvs.index') }}">Kembali</a>
         </div>

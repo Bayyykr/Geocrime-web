@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Location;
 use App\Models\Polsek;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ class PolsekController extends Controller
     public function index(Request $request): View
     {
         $items = Polsek::query()
+            ->with("lokasi")
             ->when(
                 $request->search,
                 fn($query, $search) => $query->where(function ($query) use (
@@ -20,16 +22,20 @@ class PolsekController extends Controller
                 ) {
                     $query
                         ->where("nama", "like", "%{$search}%")
-                        ->orWhere("wilayah", "like", "%{$search}%")
                         ->orWhere("alamat", "like", "%{$search}%")
-                        ->orWhere("telepon", "like", "%{$search}%");
+                        ->orWhere("telepon", "like", "%{$search}%")
+                        ->orWhereHas("lokasi", function ($query) use ($search) {
+                            $query->where("nama_lokasi", "like", "%{$search}%");
+                        });
                 }),
             )
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view("admin.master.polsek.index", compact("items"));
+        $locations = Location::query()->orderBy("nama_lokasi")->get();
+
+        return view("admin.master.polsek.index", compact("items", "locations"));
     }
 
     public function store(Request $request): RedirectResponse
@@ -62,8 +68,8 @@ class PolsekController extends Controller
     private function validated(Request $request): array
     {
         return $request->validate([
+            "lokasi_id" => ["nullable", "exists:locations,id"],
             "nama" => ["required", "string", "max:255"],
-            "wilayah" => ["nullable", "string", "max:100"],
             "alamat" => ["nullable", "string", "max:255"],
             "telepon" => ["nullable", "string", "max:30"],
         ]);

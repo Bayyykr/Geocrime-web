@@ -37,7 +37,7 @@
                     <tr>
                         <th width="60">No</th>
                         <th>Nama Polsek</th>
-                        <th>Wilayah/Kecamatan</th>
+                        <th>Wilayah Master Lokasi</th>
                         <th>Alamat</th>
                         <th>Telepon</th>
                         <th width="120">Aksi</th>
@@ -48,7 +48,7 @@
                         <tr>
                             <td>{{ $items->firstItem() + $loop->index }}</td>
                             <td class="font-semibold">{{ $item->nama }}</td>
-                            <td>{{ $item->wilayah ?? '-' }}</td>
+                            <td>{{ $item->lokasi?->nama_lokasi ?? '-' }}</td>
                             <td>{{ $item->alamat ?? '-' }}</td>
                             <td>{{ $item->telepon ?? '-' }}</td>
                             <td class="space-x-1 whitespace-nowrap">

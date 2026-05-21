@@ -4,13 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(["nama", "url_stream", "latitude", "longitude", "aktif"])]
+#[
+    Fillable([
+        "lokasi_id",
+        "nama",
+        "url_stream",
+        "latitude",
+        "longitude",
+        "aktif",
+    ]),
+]
 class Cctv extends Model
 {
     protected function casts(): array
     {
         return ["aktif" => "boolean"];
+    }
+
+    public function lokasi(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, "lokasi_id");
     }
 
     public function getEmbedUrlAttribute(): ?string

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cctv;
+use App\Models\Location;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -32,12 +33,15 @@ class CctvController extends Controller
     {
         return view("admin.master.cctv.form", [
             "item" => new Cctv(["aktif" => true]),
+            "locations" => Location::query()->orderBy("nama_lokasi")->get(),
         ]);
     }
 
     public function show(Cctv $cctv): View
     {
-        return view("admin.master.cctv.show", ["item" => $cctv]);
+        return view("admin.master.cctv.show", [
+            "item" => $cctv->load("lokasi"),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -51,7 +55,10 @@ class CctvController extends Controller
 
     public function edit(Cctv $cctv): View
     {
-        return view("admin.master.cctv.form", ["item" => $cctv]);
+        return view("admin.master.cctv.form", [
+            "item" => $cctv,
+            "locations" => Location::query()->orderBy("nama_lokasi")->get(),
+        ]);
     }
 
     public function update(Request $request, Cctv $cctv): RedirectResponse
@@ -75,6 +82,7 @@ class CctvController extends Controller
     private function validated(Request $request): array
     {
         $data = $request->validate([
+            "lokasi_id" => ["nullable", "exists:locations,id"],
             "nama" => ["required", "string", "max:255"],
             "url_stream" => ["nullable", "url", "max:255"],
             "latitude" => ["nullable", "numeric", "between:-90,90"],

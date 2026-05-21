@@ -39,8 +39,11 @@ Route::middleware(["auth", "verified"])->group(function () {
                 "destroy",
             ]);
             Route::resource("cctvs", CctvController::class);
-            Route::resource("locations", LocationController::class)->except([
-                "show",
+            Route::resource("locations", LocationController::class)->only([
+                "index",
+                "store",
+                "update",
+                "destroy",
             ]);
         });
 

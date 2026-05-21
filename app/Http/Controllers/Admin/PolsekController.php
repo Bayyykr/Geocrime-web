@@ -20,6 +20,7 @@ class PolsekController extends Controller
                 ) {
                     $query
                         ->where("nama", "like", "%{$search}%")
+                        ->orWhere("wilayah", "like", "%{$search}%")
                         ->orWhere("alamat", "like", "%{$search}%")
                         ->orWhere("telepon", "like", "%{$search}%");
                 }),
@@ -62,6 +63,7 @@ class PolsekController extends Controller
     {
         return $request->validate([
             "nama" => ["required", "string", "max:255"],
+            "wilayah" => ["nullable", "string", "max:100"],
             "alamat" => ["nullable", "string", "max:255"],
             "telepon" => ["nullable", "string", "max:30"],
         ]);

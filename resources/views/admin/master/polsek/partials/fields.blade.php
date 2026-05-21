@@ -8,6 +8,11 @@
 </div>
 
 <div>
+    <label class="form-label">Wilayah/Kecamatan</label>
+    <input class="form-input" name="wilayah" value="{{ $polsek?->wilayah }}" placeholder="Contoh: Kecamatan Lumajang">
+</div>
+
+<div>
     <label class="form-label">Alamat</label>
     <textarea class="form-input min-h-[90px]" name="alamat" placeholder="Alamat polsek">{{ $polsek?->alamat }}</textarea>
 </div>

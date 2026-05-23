@@ -1692,22 +1692,36 @@
 
                 sidebarOverlay?.addEventListener('click', closeMobileSidebar);
 
+                const sidebarDropdowns = Array.from(document.querySelectorAll('[data-sidebar-dropdown]'));
+
+                function getOpenSidebarDropdowns() {
+                    try {
+                        return JSON.parse(localStorage.getItem('admin-open-sidebar-dropdowns') || '[]');
+                    } catch (error) {
+                        return [];
+                    }
+                }
+
+                function saveOpenSidebarDropdowns() {
+                    const openDropdowns = sidebarDropdowns
+                        .filter((dropdown) => dropdown.open)
+                        .map((dropdown) => dropdown.dataset.sidebarDropdown);
+                    localStorage.setItem('admin-open-sidebar-dropdowns', JSON.stringify(openDropdowns));
+                }
+
+                getOpenSidebarDropdowns().forEach((dropdownName) => {
+                    document.querySelector(`[data-sidebar-dropdown="${dropdownName}"]`)?.setAttribute('open', true);
+                });
+
                 document.querySelectorAll('.sidebar-link').forEach((link) => {
                     link.addEventListener('click', function () {
+                        saveOpenSidebarDropdowns();
                         if (!desktopQuery.matches) closeMobileSidebar();
                     });
                 });
 
-                document.querySelectorAll('.sidebar-dropdown').forEach((dropdown) => {
-                    dropdown.addEventListener('toggle', function () {
-                        if (!dropdown.open) return;
-
-                        document.querySelectorAll('.sidebar-dropdown').forEach((otherDropdown) => {
-                            if (otherDropdown !== dropdown) {
-                                otherDropdown.removeAttribute('open');
-                            }
-                        });
-                    });
+                sidebarDropdowns.forEach((dropdown) => {
+                    dropdown.addEventListener('toggle', saveOpenSidebarDropdowns);
                 });
 
                 document.addEventListener('click', function (event) {

@@ -23,7 +23,7 @@
             <span>Dashboard</span>
         </a>
 
-        <details class="sidebar-dropdown" {{ $masterOpen ? 'open' : '' }}>
+        <details class="sidebar-dropdown" data-sidebar-dropdown="master" {{ $masterOpen ? 'open' : '' }}>
             <summary class="category-title cursor-pointer select-none flex items-center justify-between">
                 <span>Master Data</span>
                 <span class="text-gray-400">▾</span>
@@ -54,7 +54,7 @@
             </div>
         </details>
 
-        <details class="sidebar-dropdown" {{ $layananOpen ? 'open' : '' }}>
+        <details class="sidebar-dropdown" data-sidebar-dropdown="layanan" {{ $layananOpen ? 'open' : '' }}>
             <summary class="category-title cursor-pointer select-none flex items-center justify-between">
                 <span>Layanan</span>
                 <span class="text-gray-400">▾</span>
@@ -74,7 +74,7 @@
         </details>
 
 
-        <details class="sidebar-dropdown" {{ $laporanOpen ? 'open' : '' }}>
+        <details class="sidebar-dropdown" data-sidebar-dropdown="laporan" {{ $laporanOpen ? 'open' : '' }}>
             <summary class="category-title cursor-pointer select-none flex items-center justify-between">
                 <span>Laporan</span>
                 <span class="text-gray-400">▾</span>

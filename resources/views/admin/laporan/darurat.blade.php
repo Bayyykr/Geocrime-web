@@ -166,43 +166,4 @@
         </div>
     @endforeach
 
-    <script>
-        function playSosAlarm() {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
-            const ctx = new AudioContext();
-            const oscillator = ctx.createOscillator();
-            const gain = ctx.createGain();
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(780, ctx.currentTime);
-            oscillator.frequency.setValueAtTime(520, ctx.currentTime + 0.22);
-            oscillator.connect(gain);
-            gain.connect(ctx.destination);
-            gain.gain.setValueAtTime(0.001, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.03);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-            oscillator.start();
-            oscillator.stop(ctx.currentTime + 0.65);
-        }
-
-        document.addEventListener('click', function (event) {
-            if (event.target.closest('[data-test-alarm]')) playSosAlarm();
-
-            const targetId = event.target.closest('[data-modal-target]')?.dataset.modalTarget;
-            if (targetId) document.getElementById(targetId)?.removeAttribute('hidden');
-
-            const closeId = event.target.closest('[data-modal-close]')?.dataset.modalClose;
-            if (closeId) document.getElementById(closeId)?.setAttribute('hidden', true);
-
-            if (event.target.classList.contains('modal-backdrop')) event.target.setAttribute('hidden', true);
-        });
-
-        const monitor = document.querySelector('[data-active-sos-count]');
-        const activeSosCount = Number(monitor?.dataset.activeSosCount || 0);
-        const previousCount = Number(localStorage.getItem('active-sos-count') || 0);
-        if (activeSosCount > previousCount) {
-            document.body.classList.add('sos-screen-alert');
-        }
-        localStorage.setItem('active-sos-count', String(activeSosCount));
-    </script>
 </x-admin-layout>

@@ -780,6 +780,7 @@
                 background: #ef4444;
             }
 
+
             .toast-icon {
                 width: 28px;
                 height: 28px;
@@ -1596,7 +1597,8 @@
             }
         </style>
     </head>
-    <body class="font-sans antialiased">
+    @php($globalActiveSosCount = \App\Models\EmergencyReport::where('status', 'aktif')->count())
+    <body class="font-sans antialiased" data-active-sos-count="{{ $globalActiveSosCount }}" data-sos-status-url="{{ route('admin.laporan.darurat.status') }}">
         <div class="admin-shell">
             @include('layouts.admin-navigation')
             <div class="sidebar-overlay" data-sidebar-overlay></div>
@@ -1736,6 +1738,172 @@
                         sidebarToggle?.setAttribute('aria-expanded', 'false');
                     }
                 });
+            })();
+
+            (function () {
+                let activeSosCount = Number(document.body.dataset.activeSosCount || 0);
+                const statusUrl = document.body.dataset.sosStatusUrl;
+                let alarmContext;
+                let alarmOscillator;
+                let alarmGain;
+                let alarmInterval;
+
+                async function getAlarmContext() {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) return null;
+
+                    alarmContext ??= new AudioContext();
+
+                    if (alarmContext.state === 'suspended') {
+                        try {
+                            await alarmContext.resume();
+                        } catch (error) {
+                            return null;
+                        }
+                    }
+
+                    return alarmContext.state === 'running' ? alarmContext : null;
+                }
+
+                async function playSosAlarm() {
+                    const ctx = await getAlarmContext();
+                    if (!ctx) return false;
+
+                    const oscillator = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(780, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(520, ctx.currentTime + 0.22);
+                    oscillator.connect(gain);
+                    gain.connect(ctx.destination);
+                    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+                    oscillator.start();
+                    oscillator.stop(ctx.currentTime + 0.65);
+                    return true;
+                }
+
+                async function startContinuousSosAlarm() {
+                    if (activeSosCount <= 0 || alarmOscillator) return false;
+
+                    const ctx = await getAlarmContext();
+                    if (!ctx) return false;
+
+                    localStorage.setItem('sos-alarm-unlocked', 'true');
+                    alarmOscillator = ctx.createOscillator();
+                    alarmGain = ctx.createGain();
+                    alarmOscillator.type = 'sawtooth';
+                    alarmOscillator.frequency.setValueAtTime(760, ctx.currentTime);
+                    alarmGain.gain.setValueAtTime(0.001, ctx.currentTime);
+                    alarmOscillator.connect(alarmGain);
+                    alarmGain.connect(ctx.destination);
+                    alarmOscillator.start();
+
+                    let highTone = false;
+                    alarmInterval = window.setInterval(() => {
+                        if (!alarmOscillator || !alarmGain) return;
+
+                        const now = ctx.currentTime;
+                        highTone = !highTone;
+                        alarmOscillator.frequency.cancelScheduledValues(now);
+                        alarmGain.gain.cancelScheduledValues(now);
+                        alarmOscillator.frequency.setTargetAtTime(highTone ? 920 : 520, now, 0.05);
+                        alarmGain.gain.setTargetAtTime(highTone ? 0.2 : 0.08, now, 0.03);
+                    }, 360);
+
+                    return true;
+                }
+
+                function stopContinuousSosAlarm() {
+                    window.clearInterval(alarmInterval);
+                    alarmInterval = null;
+
+                    if (alarmGain && alarmContext) {
+                        alarmGain.gain.setTargetAtTime(0.001, alarmContext.currentTime, 0.03);
+                    }
+
+                    const oscillator = alarmOscillator;
+                    if (oscillator) {
+                        window.setTimeout(() => {
+                            try {
+                                oscillator.stop();
+                            } catch (error) {
+                                // Oscillator may already be stopped by the browser lifecycle.
+                            }
+                        }, 120);
+                    }
+
+                    alarmOscillator = null;
+                    alarmGain = null;
+                }
+
+
+
+                async function syncAlarmWithActiveSos() {
+                    if (activeSosCount > 0) {
+                        document.body.classList.add('sos-screen-alert');
+                        await startContinuousSosAlarm();
+                        return;
+                    }
+
+                    stopContinuousSosAlarm();
+                }
+
+                async function refreshActiveSosCount() {
+                    if (!statusUrl) return;
+
+                    try {
+                        const response = await fetch(statusUrl, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+                        if (!response.ok) return;
+
+                        const data = await response.json();
+                        const latestCount = Number(data.active || 0);
+                        const previousCount = activeSosCount;
+                        activeSosCount = latestCount;
+                        document.body.dataset.activeSosCount = String(activeSosCount);
+
+                        if (activeSosCount > previousCount) {
+                            document.body.classList.add('sos-screen-alert');
+                        }
+
+                        await syncAlarmWithActiveSos();
+                    } catch (error) {
+                        // Keep the current alarm state if polling temporarily fails.
+                    }
+                }
+
+                document.addEventListener('click', function (event) {
+                    if (event.target.closest('[data-test-alarm]')) playSosAlarm();
+                });
+
+                ['pointerdown', 'mousedown', 'click', 'keydown', 'touchstart'].forEach((eventName) => {
+                    document.addEventListener(eventName, async () => {
+                        if (activeSosCount > 0 && !alarmOscillator) {
+                            await startContinuousSosAlarm();
+                        }
+                    });
+                });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) syncAlarmWithActiveSos();
+                });
+
+                window.addEventListener('focus', syncAlarmWithActiveSos);
+
+                syncAlarmWithActiveSos();
+                window.setTimeout(refreshActiveSosCount, 1000);
+                window.setInterval(refreshActiveSosCount, 5000);
+                window.setInterval(() => {
+                    if (!document.hidden && activeSosCount > 0 && !alarmOscillator) {
+                        syncAlarmWithActiveSos();
+                    }
+                }, 2000);
             })();
         </script>
     </body>

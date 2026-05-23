@@ -69,6 +69,10 @@ Route::middleware(["auth", "verified"])->group(function () {
                 LaporanController::class,
                 "riwayat",
             ])->name("laporan.riwayat");
+            Route::get("laporan/darurat/status", [
+                LaporanController::class,
+                "daruratStatus",
+            ])->name("laporan.darurat.status");
             Route::get("laporan/darurat", [
                 LaporanController::class,
                 "darurat",

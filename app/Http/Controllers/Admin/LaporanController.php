@@ -8,6 +8,7 @@ use App\Models\EmergencyReport;
 use App\Models\Laporan;
 use App\Models\Polsek;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,6 +17,13 @@ use Illuminate\View\View;
 
 class LaporanController extends Controller
 {
+    public function daruratStatus(): JsonResponse
+    {
+        return response()->json([
+            "active" => EmergencyReport::where("status", "aktif")->count(),
+        ]);
+    }
+
     public function infografik(Request $request): View
     {
         $selectedMonth = $request->input("bulan", now()->format("Y-m"));
